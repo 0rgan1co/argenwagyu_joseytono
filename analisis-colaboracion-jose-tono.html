@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis de Colaboración · José + Tono · Argenwagyu</title>
+<style>
+  :root {
+    --bg: #faf8f5;
+    --card: #ffffff;
+    --ink: #1a1816;
+    --muted: #6b6660;
+    --line: #e8e3dc;
+    --accent: #8b3a2e;
+    --accent-soft: #f3e7e2;
+    --green: #4a6b3a;
+    --green-soft: #e8efe3;
+    --blue: #2c4a6b;
+    --blue-soft: #e2eaf3;
+    --amber: #b8821a;
+    --amber-soft: #f7ecd4;
+    --grey: #8a847e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    padding: 32px 20px 80px;
+    font-size: 15px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+
+  /* HEADER */
+  .hero {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 760px;
+    margin-bottom: 22px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .meta-cell .label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .meta-cell .value {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* CONFIDENCE LEGEND */
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 28px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .legend-title {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 6px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge.hecho { background: var(--green-soft); color: var(--green); }
+  .badge.hipotesis { background: var(--amber-soft); color: var(--amber); }
+  .badge.alta { background: #fce8e3; color: #a13321; }
+  .badge.media { background: #fdf0d8; color: #966614; }
+  .badge.baja { background: #e6ecf2; color: #2c4a6b; }
+
+  /* DOS COLUMNAS */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) {
+    .columns { grid-template-columns: 1fr; }
+    .meta-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .column {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 26px;
+  }
+  .col-header {
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 20px;
+  }
+  .col-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .col-header .icon-circle {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .col-header.desafios .icon-circle { background: var(--accent-soft); color: var(--accent); }
+  .col-header.necesidades .icon-circle { background: var(--blue-soft); color: var(--blue); }
+  .col-header p {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* ITEM */
+  .item {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .item:last-child { border-bottom: none; }
+  .item-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .rank {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .item-title-block { flex: 1; }
+  .item-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: -0.005em;
+  }
+  .item-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .item-body {
+    margin-left: 50px;
+    font-size: 14px;
+    color: #3a3631;
+  }
+  .item-body p { margin-bottom: 8px; }
+  .quote {
+    border-left: 3px solid var(--line);
+    padding: 4px 0 4px 14px;
+    margin: 10px 0;
+    color: #4a4640;
+    font-style: italic;
+    font-size: 13.5px;
+  }
+  .quote .who {
+    display: block;
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 5px;
+    font-weight: 600;
+  }
+  .source {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .source-chip {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  /* TOP DESAFÍO HIGHLIGHT */
+  .item.top {
+    background: linear-gradient(180deg, var(--accent-soft) 0%, transparent 60%);
+    margin: -8px -10px 0;
+    padding: 22px 14px;
+    border-radius: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .item.top .rank {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .column .item.top + .item { padding-top: 22px; }
+
+  /* SECCIÓN INFERIOR */
+  .footer-section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-top: 28px;
+  }
+  .footer-section h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .footer-section p {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .footer-section .note {
+    font-size: 12px;
+    color: var(--grey);
+    padding: 12px 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    margin-top: 12px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 700px) {
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+  ul.clean { list-style: none; padding: 0; }
+  ul.clean li {
+    padding: 6px 0 6px 18px;
+    position: relative;
+    font-size: 13.5px;
+    color: #3a3631;
+  }
+  ul.clean li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* TLDR */
+  .tldr {
+    background: linear-gradient(135deg, #fffbf5 0%, #fdf4e8 100%);
+    border: 1px solid #ead9c0;
+    border-radius: 14px;
+    padding: 22px 28px;
+    margin-bottom: 28px;
+  }
+  .tldr-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .tldr-tag {
+    background: var(--amber);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .tldr-tagline {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .tldr-body p {
+    font-size: 14.5px;
+    margin-bottom: 8px;
+    color: #3a3631;
+  }
+  .tldr-body p:last-child { margin-bottom: 0; }
+
+  /* SECCIONES VINCULADAS */
+  .linked-section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-top: 28px;
+  }
+  .linked-section .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .linked-section .section-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .linked-section.iaq .section-icon { background: #ece4f7; color: #5a3b9e; }
+  .linked-section.crea .section-icon { background: #e3efe8; color: #2d6a4f; }
+  .linked-section h3 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+  .linked-section .section-sub {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin-bottom: 22px;
+  }
+
+  /* Cards grid */
+  .opp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+  @media (max-width: 800px) { .opp-grid { grid-template-columns: 1fr; } }
+  .opp-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px;
+    background: var(--bg);
+  }
+  .opp-card .opp-rank {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .linked-section.iaq .opp-card .opp-rank { color: #5a3b9e; }
+  .linked-section.crea .opp-card .opp-rank { color: #2d6a4f; }
+  .opp-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .opp-card p {
+    font-size: 13.5px;
+    color: #3a3631;
+    margin-bottom: 8px;
+  }
+  .opp-card .opp-link {
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+  .opp-card .opp-link strong { color: var(--ink); }
+
+  /* Arquetipos */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (max-width: 800px) { .arch-grid { grid-template-columns: 1fr; } }
+  .arch-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+    background: white;
+  }
+  .arch-card .arch-id {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: #e3efe8;
+    color: #2d6a4f;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .arch-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .arch-card .arch-desc {
+    font-size: 13.5px;
+    color: #3a3631;
+    margin-bottom: 10px;
+  }
+  .arch-card .arch-pain {
+    font-size: 12.5px;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid #2d6a4f;
+  }
+
+  .connect-strip {
+    margin-top: 22px;
+    padding: 18px 22px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #e8f0eb 0%, #ece4f7 100%);
+    border: 1px solid var(--line);
+    font-size: 13.5px;
+    color: #3a3631;
+  }
+  .connect-strip strong { color: var(--ink); }
+
+  /* PROPUESTA ORIGINAL */
+  .proposal {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+  }
+  .proposal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .proposal-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+  .progress-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .progress-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+  }
+  .proposal-sub {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin-bottom: 22px;
+  }
+
+  /* Original challenges */
+  .orig-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 800px) { .orig-grid { grid-template-columns: 1fr; } }
+  .orig-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    background: var(--bg);
+  }
+  .orig-card .orig-num {
+    display: inline-block;
+    background: var(--ink);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .orig-card h4 {
+    font-size: 14.5px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .orig-card p {
+    font-size: 13px;
+    color: #3a3631;
+    margin-bottom: 8px;
+  }
+  .orig-card .orig-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .orig-card .orig-status.covered { background: var(--green-soft); color: var(--green); }
+  .orig-card .orig-status.partial { background: var(--amber-soft); color: var(--amber); }
+  .orig-card .orig-status.pending { background: #fce8e3; color: #a13321; }
+
+  /* Tracker */
+  .tracker {
+    margin-top: 6px;
+  }
+  .tracker-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  .tracker-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: white;
+  }
+  .tracker-row.done { background: linear-gradient(90deg, var(--green-soft) 0%, white 30%); }
+  .tracker-row.partial { background: linear-gradient(90deg, var(--amber-soft) 0%, white 30%); }
+  .tracker-row.pending { background: linear-gradient(90deg, #fce8e3 0%, white 30%); }
+  .check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .check.done { background: var(--green); color: white; }
+  .check.partial { background: var(--amber); color: white; }
+  .check.pending { background: #c9c4be; color: white; }
+  .tracker-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .tracker-name .theme-tag {
+    font-size: 10px;
+    background: var(--bg);
+    color: var(--muted);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 8px;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .tracker-evidence {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 3px;
+  }
+  .tracker-status {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .tracker-status.done { background: var(--green-soft); color: var(--green); }
+  .tracker-status.partial { background: var(--amber-soft); color: var(--amber); }
+  .tracker-status.pending { background: #fce8e3; color: #a13321; }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+    margin: 14px 0 6px;
+  }
+  .progress-bar .seg {
+    height: 100%;
+  }
+  .progress-bar .seg.done { background: var(--green); }
+  .progress-bar .seg.partial { background: var(--amber); }
+  .progress-bar .seg.pending { background: #e0d9d0; }
+  .progress-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .progress-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .progress-legend .ldot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .progress-legend .ldot.done { background: var(--green); }
+  .progress-legend .ldot.partial { background: var(--amber); }
+  .progress-legend .ldot.pending { background: #c9c4be; }
+
+  /* Principles */
+  .principles {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .principles h4 {
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 800px) { .principles-grid { grid-template-columns: repeat(2, 1fr); } }
+  .principle {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12.5px;
+    color: #3a3631;
+    background: var(--bg);
+  }
+  .principle strong {
+    display: block;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  /* Expanded archetype card */
+  .arch-card-expanded {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .arch-card-expanded .arch-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .arch-card-expanded .arch-id {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: #e3efe8;
+    color: #2d6a4f;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .arch-card-expanded h5 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.005em;
+  }
+  .arch-card-expanded .arch-tagline {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 4px;
+  }
+  .arch-card-expanded .arch-quote {
+    font-size: 13px;
+    color: #3a3631;
+    border-left: 3px solid #2d6a4f;
+    padding: 6px 0 6px 12px;
+    margin: 6px 0;
+    font-style: italic;
+  }
+  .arch-card-expanded .arch-section-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .arch-card-expanded ul.profile {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  .arch-card-expanded ul.profile li {
+    font-size: 13px;
+    padding: 2px 0 2px 14px;
+    position: relative;
+    color: #3a3631;
+  }
+  .arch-card-expanded ul.profile li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #2d6a4f;
+    font-weight: 700;
+  }
+  .arch-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+  .arch-meta-cell {
+    font-size: 12px;
+  }
+  .arch-meta-cell .label {
+    display: block;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .arch-meta-cell .value {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .arch-meta-cell .value strong { font-weight: 700; }
+  .arch-pain-large {
+    background: var(--bg);
+    border-left: 3px solid #2d6a4f;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--muted);
+    border-radius: 4px;
+  }
+  .arch-pain-large strong { color: var(--ink); }
+  .arch-grid-expanded {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (max-width: 900px) { .arch-grid-expanded { grid-template-columns: 1fr; } }
+
+  /* Strategy section (Fede) */
+  .strategy-section {
+    background: linear-gradient(180deg, #f9f5ee 0%, #ffffff 50%);
+    border: 1px solid #d9c8a8;
+    border-radius: 14px;
+    padding: 32px 36px;
+    margin-top: 28px;
+  }
+  .strategy-section .strategy-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8a6b1a;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .strategy-section h3 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .strategy-section .strategy-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+    max-width: 780px;
+  }
+  .strategy-section .strategy-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    background: white;
+    border: 1px solid #d9c8a8;
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin-bottom: 22px;
+  }
+  .strategy-source strong { color: var(--ink); }
+
+  /* Marco 3 pilares */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  @media (max-width: 800px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar {
+    background: white;
+    border: 1px solid #d9c8a8;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .pillar .pillar-num {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #8a6b1a;
+    margin-bottom: 4px;
+  }
+  .pillar h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .pillar p {
+    font-size: 13px;
+    color: #3a3631;
+  }
+
+  /* Lecciones table */
+  .lessons-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .lesson {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #ead9c0;
+  }
+  .lesson:last-child { border-bottom: none; }
+  .lesson .lesson-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #8a6b1a;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .lesson h5 {
+    font-size: 15.5px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .lesson p {
+    font-size: 13.5px;
+    color: #3a3631;
+    margin-bottom: 8px;
+  }
+  .lesson .lesson-quote {
+    font-size: 12.5px;
+    color: var(--muted);
+    border-left: 3px solid #d9c8a8;
+    padding: 4px 0 4px 12px;
+    font-style: italic;
+    margin-top: 6px;
+  }
+  .lesson .lesson-quote .author {
+    display: block;
+    font-style: normal;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Vínculo Argenwagyu */
+  .strategy-link {
+    background: linear-gradient(90deg, var(--accent-soft) 0%, white 60%);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-top: 24px;
+  }
+  .strategy-link .link-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .strategy-link h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .strategy-link p {
+    font-size: 13.5px;
+    color: #3a3631;
+    margin-bottom: 6px;
+  }
+
+  /* Pregunta final */
+  .final-q {
+    margin-top: 24px;
+    padding: 22px 26px;
+    background: var(--ink);
+    color: white;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .final-q .qtag {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #c9bf9a;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="hero">
+    <div class="eyebrow">Análisis de colaboración · Cliente</div>
+    <h1>José Nasca + Antonio "Tono" Marengo</h1>
+    <p class="subtitle">
+      Síntesis de desafíos, necesidades y <strong>estado de entregables</strong> del Ciclo #1 de coaching estratégico
+      (febrero–mayo 2026) en <strong>Argenwagyu</strong> · producción de Wagyu para exportación en 7.000 hectáreas (Santiago del Estero).
+      Baseline: Propuesta de Acompañamiento (Feb 2026) · Triangulación con Granola + WhatsApp grupal + chat directo con Tono.
+    </p>
+    <div class="meta-grid">
+      <div class="meta-cell">
+        <div class="label">Operación</div>
+        <div class="value">7.000 ha · Santiago del Estero</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">Período Ciclo #1</div>
+        <div class="value">19 feb → 5 may 2026</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">Modalidad</div>
+        <div class="value">Ciclos 3–4 sem · stop-pivot-continue</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">Próximo</div>
+        <div class="value">Diseñar Ciclo #2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TLDR -->
+  <div class="tldr">
+    <div class="tldr-head">
+      <span class="tldr-tag">TL;DR</span>
+      <span class="tldr-tagline">Lo esencial en 30 segundos</span>
+    </div>
+    <div class="tldr-body">
+      <p><strong>3 desafíos formales planteados</strong> en la propuesta de Feb 2026 (delegación operativa, destrezas relacionales, autonomía del equipo de cría). El Ciclo #1 cubrió los dos primeros con prácticas concretas; el tercero quedó <em>fuera de scope</em> y es el corazón del Ciclo #2.</p>
+      <p><strong>De los 7 entregables comprometidos:</strong> 2 completados (Mapa de situación · Plan de mejora co-creado vía experimentos), 2 parciales (Acuerdos de trabajo · Tablero de delegación) y 3 pendientes (Matriz de capacidades · Encuesta intereses · Plan de desarrollo por persona).</p>
+      <p>José + Tono son además un <strong>arquetipo vivo</strong> que conecta con dos iniciativas paralelas: oportunidades para IAhora Qué (CEO Aumentado) y la audiencia del Congreso CREA Litoral.</p>
+    </div>
+  </div>
+
+  <!-- PROPUESTA ORIGINAL + TRACKER -->
+  <div class="proposal">
+    <div class="proposal-header">
+      <h2>Desafíos identificados en Feb 2026 · Estado de cumplimiento</h2>
+      <span class="progress-pill"><span class="dot"></span>2 de 7 entregables completos · 2 parciales</span>
+    </div>
+    <p class="proposal-sub">
+      Baseline contra el cual mido el avance: la <em>Propuesta de Acompañamiento Argenwagyu</em> que firmamos en febrero.
+      Tres desafíos formales · tres temas con entregables · cinco principios de trabajo.
+    </p>
+
+    <!-- 3 Desafíos Originales -->
+    <div class="orig-grid">
+      <div class="orig-card">
+        <span class="orig-num">Desafío Original #1</span>
+        <h4>De operación a estrategia</h4>
+        <p>"2 personas del equipo quieren pasar de estar enfocadas en la operación (&lt;10% del tiempo en estrategia) a delegar progresivamente la operación."</p>
+        <span class="orig-status covered">✓ CUBIERTO en Ciclo #1</span>
+      </div>
+      <div class="orig-card">
+        <span class="orig-num">Desafío Original #2</span>
+        <h4>De tensiones intuitivas a destrezas relacionales</h4>
+        <p>"Pasar de gestionar las tensiones de forma intuitiva a desarrollar destrezas relacionales concretas para cuidar los vínculos, la estrategia y los resultados."</p>
+        <span class="orig-status covered">✓ CUBIERTO en Ciclo #1</span>
+      </div>
+      <div class="orig-card">
+        <span class="orig-num">Desafío Original #3</span>
+        <h4>Autonomía operativa del equipo de cría</h4>
+        <p>"Pasar de un equipo con baja autonomía operativa a un equipo capaz de autogestionar la unidad de cría con foco en resultados."</p>
+        <span class="orig-status pending">○ FUERA DE SCOPE Ciclo #1 · Eje del Ciclo #2</span>
+      </div>
+    </div>
+
+    <!-- Tracker de Entregables -->
+    <div class="tracker">
+      <div class="tracker-title">Tracker de los 7 entregables comprometidos</div>
+
+      <div class="progress-bar">
+        <div class="seg done" style="width: 28.5%"></div>
+        <div class="seg partial" style="width: 28.5%"></div>
+        <div class="seg pending" style="width: 43%"></div>
+      </div>
+      <div class="progress-legend">
+        <span><span class="ldot done"></span>2 completados (28%)</span>
+        <span><span class="ldot partial"></span>2 parciales (28%)</span>
+        <span><span class="ldot pending"></span>3 pendientes (43%)</span>
+      </div>
+
+      <div class="tracker-row done">
+        <div class="check done">✓</div>
+        <div class="tracker-name">
+          <span class="theme-tag">Tema 1</span> Mapa de situación (síntomas, causas)
+          <span class="tracker-evidence">Producido en la retro del 5/5/26 (4 columnas: Celebrar / Obstáculos / Aprendizajes / Próximos pasos). Documentado en Granola.</span>
+        </div>
+        <span class="tracker-status done">Completado</span>
+      </div>
+
+      <div class="tracker-row done">
+        <div class="check done">✓</div>
+        <div class="tracker-name">
+          <span class="theme-tag">Tema 1</span> Plan de acción de mejora continua co-creado con Antonio y José
+          <span class="tracker-evidence">Dos experimentos diseñados <em>por ellos</em>: "Caminar sin Espinas" (Tono) y "Autonomía del equipo de cría" (José). Co-creación cumplida — los Canvas son de ellos, no míos.</span>
+        </div>
+        <span class="tracker-status done">Completado</span>
+      </div>
+
+      <div class="tracker-row partial">
+        <div class="check partial">◐</div>
+        <div class="tracker-name">
+          <span class="theme-tag">Tema 2</span> Acuerdos de trabajo (roles, responsabilidades, priorización, organización, aprendizaje)
+          <span class="tracker-evidence">Definidos los principios ("Dueño de la Decisión", "Lo perfecto es enemigo de lo bueno", "QUE con apertura a los COMO") pero <em>no formalizados</em> como documento de acuerdos. Pendiente: pasar de principio a hábito.</span>
+        </div>
+        <span class="tracker-status partial">Parcial</span>
+      </div>
+
+      <div class="tracker-row partial">
+        <div class="check partial">◐</div>
+        <div class="tracker-name">
+          <span class="theme-tag">Tema 2</span> Tablero de delegación progresiva
+          <span class="tracker-evidence">Quedó nombrado como próximo paso explícito en la retro ("clarificar responsabilidades y criterios de delegación"). El experimento de Tono lo aproxima vía "Dueño de la Decisión" por tema, pero no hay tablero formal.</span>
+        </div>
+        <span class="tracker-status partial">Parcial</span>
+      </div>
+
+      <div class="tracker-row pending">
+        <div class="check pending">○</div>
+        <div class="tracker-name">
+          <span class="theme-tag">Tema 3</span> Matriz de habilidades / capacidades del equipo de cría
+          <span class="tracker-evidence">No abordado en Ciclo #1. Es entregable del Desafío Original #3 — corazón del Ciclo #2.</span>
+        </div>
+        <span class="tracker-status pending">Pendiente</span>
+      </div>
+
+      <div class="tracker-row pending">
+        <div class="check pending">○</div>
+        <div class="tracker-name">
+          <span class="theme-tag">Tema 3</span> Encuesta / entrevistas para identificar intereses y motivaciones
+          <span class="tracker-evidence">No abordado en Ciclo #1. Requiere intervención directa con el equipo de campo, no solo con los socios.</span>
+        </div>
+        <span class="tracker-status pending">Pendiente</span>
+      </div>
+
+      <div class="tracker-row pending">
+        <div class="check pending">○</div>
+        <div class="tracker-name">
+          <span class="theme-tag">Tema 3</span> Plan de desarrollo por persona
+          <span class="tracker-evidence">No abordado en Ciclo #1. Depende de tener primero la Matriz y las Entrevistas.</span>
+        </div>
+        <span class="tracker-status pending">Pendiente</span>
+      </div>
+    </div>
+
+    <!-- Principios -->
+    <div class="principles">
+      <h4>Principios de trabajo (compromisos del Ciclo #1)</h4>
+      <div class="principles-grid">
+        <div class="principle"><strong>A · Co-construcción</strong>Construimos con el equipo, no traemos soluciones de afuera.</div>
+        <div class="principle"><strong>B · Concreción</strong>Cada sesión termina con algo concreto y aplicable.</div>
+        <div class="principle"><strong>C · Iteración</strong>Probamos en pequeño antes de cambiar todo.</div>
+        <div class="principle"><strong>D · Mejora continua</strong>Cada ciclo: inspección, adaptación y aprendizaje del anterior.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEYENDA -->
+  <div class="legend">
+    <span class="legend-title">Convenciones:</span>
+    <span class="badge hecho">HECHO</span><span style="color:var(--muted);font-size:12px;">Citado textualmente en fuente</span>
+    <span class="badge hipotesis">INFERENCIA</span><span style="color:var(--muted);font-size:12px;">Patrón leído de las fuentes</span>
+    <span style="margin-left:auto;"></span>
+    <span class="badge alta">ALTA</span><span class="badge media">MEDIA</span><span class="badge baja">BAJA</span>
+    <span style="color:var(--muted);font-size:12px;">prioridad</span>
+  </div>
+
+  <!-- DOS COLUMNAS -->
+  <div class="columns">
+
+    <!-- DESAFÍOS -->
+    <div class="column">
+      <div class="col-header desafios">
+        <h2><span class="icon-circle">⚠</span> Ranking de Desafíos</h2>
+        <p>Fricciones y obstáculos identificados — ordenados por recurrencia × peso narrativo en las fuentes.</p>
+      </div>
+
+      <!-- D1 -->
+      <div class="item top">
+        <div class="item-head">
+          <div class="rank">1</div>
+          <div class="item-title-block">
+            <div class="item-title">Delegación y dependencia de los socios</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: var(--bg); color: var(--ink); border: 1px solid var(--line);">↔ Desafío Original #1</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Es <strong>el tema más recurrente</strong> de todo el ciclo. Aparece en los dos experimentos diseñados, en el chat directo, en la retrospectiva final y como hipótesis-eje del coaching.</p>
+          <div class="quote">
+            "Los criterios van a seguir viviendo en José o en Tono… ¿cómo salir de gestionar a las personas a gestionar el sistema?"
+            <span class="who">Jota — Retro 5/5/26</span>
+          </div>
+          <div class="quote">
+            "Mañana diseñamos un experimento del desafío de delegación."
+            <span class="who">Jota — WhatsApp 16/3/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">Experimento "Caminar sin Espinas"</span>
+            <span class="source-chip">Experimento autonomía equipo cría</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D2 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">2</div>
+          <div class="item-title-block">
+            <div class="item-title">Asimetría cognitiva: precisión vs. velocidad</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: var(--bg); color: var(--ink); border: 1px solid var(--line);">↔ Desafío Original #2</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>José necesita datos precisos para decidir; Tono opera con ansiedad y acción rápida. La fricción se materializa en decisiones operativas concretas (ej. costos de ración).</p>
+          <div class="quote">
+            "Los tiempos diferentes… el costo de una ración porque tenemos que tomar una decisión ya, y hace falta un estimado y no el exacto."
+            <span class="who">Tono — Retro 5/5/26</span>
+          </div>
+          <div class="quote">
+            "Establecer tiempos para terminar la idea con la precisión que lo deja cómodo a José."
+            <span class="who">Tono — WhatsApp 16/3/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D3 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">3</div>
+          <div class="item-title-block">
+            <div class="item-title">Imposición vs. propuesta (control)</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: var(--bg); color: var(--ink); border: 1px solid var(--line);">↔ Desafío Original #2</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Patrón de comunicación que generó el quiebre inicial del coaching: Tono percibe que José impone "el cómo", no solo "el qué".</p>
+          <div class="quote">
+            "Quiebre para pedir ayuda: 'percepción: José quiere que las cosas se hacen como yo quiero'. Cuidar el QUE con apertura a los COMO."
+            <span class="who">Jota — WhatsApp 5/3/26</span>
+          </div>
+          <div class="quote">
+            "Proponer antes que imponer." · "Proponer antes de preguntar cierra conversaciones."
+            <span class="who">Jota — Objetivos del proceso</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D4 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">4</div>
+          <div class="item-title-block">
+            <div class="item-title">Foco en lo negativo · falta de celebración</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+              <span class="badge" style="background: var(--bg); color: var(--ink); border: 1px solid var(--line);">↔ Desafío Original #2</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Tono lo nombra como autocrítica explícita. Conecta con el clima emocional del equipo y con la motivación de las personas a cargo.</p>
+          <div class="quote">
+            "Estaba focalizando mucho en lo que estaba mal, dejando de lado lo que estaba bien."
+            <span class="who">Tono — Retro 5/5/26</span>
+          </div>
+          <div class="quote">
+            "Si no hay espacios para reconocer y celebrar, el otro se vincula con el miedo, con el vaso medio vacío."
+            <span class="who">Jota — Retro 5/5/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D5 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">5</div>
+          <div class="item-title-block">
+            <div class="item-title">Virtualidad como pérdida de diálogo</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Tono explicita que ciertos temas requieren presencialidad. Se manifiesta también en su preferencia por encarar conversaciones sensibles con José cara a cara.</p>
+          <div class="quote">
+            "La virtualidad por ahí nos hace perder algunas cosas… hay diálogo que no se genera desde la virtualidad."
+            <span class="who">Tono — Retro 5/5/26</span>
+          </div>
+          <div class="quote">
+            "Lo que hable con José prefiero hacerlo cara a cara."
+            <span class="who">Tono — WhatsApp 16/3/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D6 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">6</div>
+          <div class="item-title-block">
+            <div class="item-title">Pérdida de norte en pasos a seguir</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Señalado por Tono en momento medio del ciclo. Indica que el ritmo del coaching y la implementación necesitaban refuerzo.</p>
+          <div class="quote">
+            "Estoy un poco perdido con los pasos a seguir, capaz después de la reunión de mañana vea la luz."
+            <span class="who">Tono — WhatsApp 16/3/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D7 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">7</div>
+          <div class="item-title-block">
+            <div class="item-title">Restricción presupuestaria · revisión modelo económico</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge baja">PRIORIDAD BAJA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Tono activa el tema al final del Ciclo #1 antes de continuar. Es una restricción operativa, no relacional.</p>
+          <div class="quote">
+            "Me gustaría revisar el tema u$ antes de continuar, ya que tengo acotado el presupuesto como te comente en su momento por los u$ 1000."
+            <span class="who">Tono — WhatsApp 20/4/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D8: Autonomía equipo cría (Desafío Original #3) -->
+      <div class="item" style="border-top: 2px dashed var(--accent); padding-top: 22px; margin-top: 6px;">
+        <div class="item-head">
+          <div class="rank" style="background: white; border: 2px dashed var(--accent); color: var(--accent);">8</div>
+          <div class="item-title-block">
+            <div class="item-title">Autonomía operativa del equipo de cría</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: var(--bg); color: var(--ink); border: 1px solid var(--line);">↔ Desafío Original #3</span>
+              <span class="badge" style="background: #fce8e3; color: #a13321;">FUERA DE SCOPE CICLO #1</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>El tercer desafío formal de la propuesta original <strong>no fue trabajado</strong> en el Ciclo #1, que se enfocó en la dinámica entre socios. Sin embargo, los experimentos diseñados por José y Tono <em>apuntan en esta dirección</em>:</p>
+          <div class="quote">
+            "Desarrollar la autonomía del equipo de cría aumentando la toma de decisiones en campo y reduciendo la dependencia de José/Tono."
+            <span class="who">Objetivo del experimento de José — 17/3/26</span>
+          </div>
+          <p>Este es el <strong>eje central del Ciclo #2</strong> y donde están los 3 entregables pendientes (Matriz, Encuesta, Plan de desarrollo).</p>
+          <div class="source">
+            <span class="source-chip">Propuesta original</span>
+            <span class="source-chip">Experimento José</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NECESIDADES -->
+    <div class="column">
+      <div class="col-header necesidades">
+        <h2><span class="icon-circle">◎</span> Ranking de Necesidades</h2>
+        <p>Lo que pidieron explícitamente o lo que las prácticas acordadas revelan como faltante.</p>
+      </div>
+
+      <!-- N1 -->
+      <div class="item top" style="background: linear-gradient(180deg, var(--blue-soft) 0%, transparent 60%);">
+        <div class="item-head">
+          <div class="rank" style="background: var(--blue); color: white; border-color: var(--blue);">1</div>
+          <div class="item-title-block">
+            <div class="item-title">Rutina semanal "Logros y Espinas"</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: var(--green-soft); color: var(--green);">Entregable Tema 1 ✓</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Acordado en la retrospectiva como <strong>próximo paso #1</strong>. Idea originada por Tono ("sacar espinas tomando mates") y extendida por Jota a comité semanal, unidades de negocio y equipos individuales.</p>
+          <div class="quote">
+            "Pizarra de Espinas en la bota… se elige una espina por semana y se resuelve antes del viernes."
+            <span class="who">Experimento "Caminar sin Espinas" — Tono</span>
+          </div>
+          <p>Métrica del experimento: <strong>≥4 espinas resueltas/mes</strong>.</p>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">Experimento Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N2 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">2</div>
+          <div class="item-title-block">
+            <div class="item-title">Pasar de gestionar personas a gestionar el sistema</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Distinción que Jota introduce y que Tono recoge como aprendizaje. Es la palanca para resolver el desafío #1 (delegación).</p>
+          <div class="quote">
+            "Controlar procesos antes que controlar personas."
+            <span class="who">Jota — Grupo WhatsApp 17/3/26</span>
+          </div>
+          <div class="quote">
+            "Lo de gestionar el proceso, no la persona, me quedó como interesante."
+            <span class="who">Tono — Retro 5/5/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">Grupo WhatsApp</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N3 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">3</div>
+          <div class="item-title-block">
+            <div class="item-title">Sincronía directiva 1-2-1 José ↔ Tono</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: var(--amber-soft); color: var(--amber);">Entregable Tema 2 ◐</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Reunión semanal fija (martes 08:00) para "barrer OKR" y limpiar fricciones. Definir <strong>"Dueño de la Decisión"</strong> por tema — quien decide, el otro acompaña.</p>
+          <div class="quote">
+            "Si el dueño de la decisión decide, el otro acompaña a muerte, aunque tenga una visión distinta."
+            <span class="who">Experimento "Caminar sin Espinas" — Tono</span>
+          </div>
+          <p>Métrica: <strong>cero decisiones pendientes &gt;48hs</strong>.</p>
+          <div class="source">
+            <span class="source-chip">Experimento Tono</span>
+            <span class="source-chip">Grupo WhatsApp</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N4 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">4</div>
+          <div class="item-title-block">
+            <div class="item-title">Tablero de delegación + criterios por rol</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: var(--amber-soft); color: var(--amber);">Entregable Tema 2 ◐</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Próximo paso explícito post-retro: clarificar qué decide cada rol para salir de la dependencia centralizada.</p>
+          <div class="quote">
+            "Si definimos claramente qué decisiones puede tomar el equipo sin consultar, entonces van a aumentar las decisiones tomadas en campo sin depender de José."
+            <span class="who">Experimento autonomía equipo cría — José</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">Experimento José</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N5 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">5</div>
+          <div class="item-title-block">
+            <div class="item-title">Mantener prácticas de vulnerabilidad y curiosidad</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Aprendizaje central de la retro: pasar de <em>principios</em> a <em>hábitos</em> que no requieren un facilitador externo.</p>
+          <div class="quote">
+            "Cuánto pregunté, cuánto propuse. Cuán vulnerable pude ser esta semana… uno lo sabe, uno lo nota."
+            <span class="who">Jota — Retro 5/5/26</span>
+          </div>
+          <div class="quote">
+            "Las preguntas abren y las respuestas cierran."
+            <span class="who">José — Retro 5/5/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N6 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">6</div>
+          <div class="item-title-block">
+            <div class="item-title">Ritmo iterativo: estimado → preciso → decisión</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Protocolo concreto propuesto por Tono para resolver la asimetría temporal con José.</p>
+          <div class="quote">
+            "Discutamos opciones, mañana revisemos lo conversado con datos estimados vs datos precisos, y luego tomemos la decisión."
+            <span class="who">Tono — WhatsApp 16/3/26</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N7 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">7</div>
+          <div class="item-title-block">
+            <div class="item-title">Mirada apreciativa · progreso sobre perfección</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Próximo paso explícito de la retro: reconocer <strong>procesos</strong>, no solo resultados.</p>
+          <div class="quote">
+            "Lo perfecto es enemigo de lo bueno."
+            <span class="who">Tono — WhatsApp 16/3/26 · Marco repetido</span>
+          </div>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+            <span class="source-chip">WhatsApp directo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N8 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">8</div>
+          <div class="item-title-block">
+            <div class="item-title">Pre-meets bilaterales Jota ↔ Tono</div>
+            <div class="item-tags">
+              <span class="badge hipotesis">INFERENCIA</span>
+              <span class="badge baja">PRIORIDAD BAJA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Patrón observado en WhatsApp: Tono pide o acepta encuentros bilaterales antes de las reuniones grupales con José para preparar el terreno emocional.</p>
+          <div class="quote">
+            "Antes de esa reunión me gustaría que nos juntemos nosotros."
+            <span class="who">Jota — WhatsApp 2/3/26</span>
+          </div>
+          <p><em>Inferencia: este patrón se repitió varias veces, sugiriendo una necesidad estructural más que ocasional.</em></p>
+          <div class="source">
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N9 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">9</div>
+          <div class="item-title-block">
+            <div class="item-title">Más presencialidad para temas sensibles</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge baja">PRIORIDAD BAJA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Contraparte de Desafío #5. Tono nombró que la virtualidad limita ciertos diálogos.</p>
+          <div class="source">
+            <span class="source-chip">Granola: Retro 5/5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N10 -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank">10</div>
+          <div class="item-title-block">
+            <div class="item-title">Revisión comercial · Ciclo #2</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge baja">PRIORIDAD BAJA</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Tono lo deja abierto en el último mensaje (20/4): condición previa para continuar.</p>
+          <div class="source">
+            <span class="source-chip">WhatsApp directo Tono</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N11: Matriz de habilidades (entregable pendiente) -->
+      <div class="item" style="border-top: 2px dashed #2c4a6b; padding-top: 22px; margin-top: 6px;">
+        <div class="item-head">
+          <div class="rank" style="background: white; border: 2px dashed var(--blue); color: var(--blue);">11</div>
+          <div class="item-title-block">
+            <div class="item-title">Matriz de habilidades / capacidades del equipo de cría</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge alta">PRIORIDAD ALTA</span>
+              <span class="badge" style="background: #fce8e3; color: #a13321;">Entregable Tema 3 ○</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Entregable comprometido en la propuesta original que <strong>no se abordó en Ciclo #1</strong>. Requiere intervención directa en el campo, no solo con los socios.</p>
+          <div class="source">
+            <span class="source-chip">Propuesta Argenwagyu Feb 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N12: Encuesta de intereses (entregable pendiente) -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank" style="background: white; border: 2px dashed var(--blue); color: var(--blue);">12</div>
+          <div class="item-title-block">
+            <div class="item-title">Encuesta / entrevistas de intereses y motivaciones</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+              <span class="badge" style="background: #fce8e3; color: #a13321;">Entregable Tema 3 ○</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Comprometido en propuesta original. Habilita el Plan de desarrollo por persona.</p>
+          <div class="source">
+            <span class="source-chip">Propuesta Argenwagyu Feb 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- N13: Plan de desarrollo por persona (entregable pendiente) -->
+      <div class="item">
+        <div class="item-head">
+          <div class="rank" style="background: white; border: 2px dashed var(--blue); color: var(--blue);">13</div>
+          <div class="item-title-block">
+            <div class="item-title">Plan de desarrollo por persona</div>
+            <div class="item-tags">
+              <span class="badge hecho">HECHO</span>
+              <span class="badge media">PRIORIDAD MEDIA</span>
+              <span class="badge" style="background: #fce8e3; color: #a13321;">Entregable Tema 3 ○</span>
+            </div>
+          </div>
+        </div>
+        <div class="item-body">
+          <p>Cierra el ciclo del Desafío Original #3. Depende de Matriz + Entrevistas previas.</p>
+          <div class="source">
+            <span class="source-chip">Propuesta Argenwagyu Feb 2026</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- IAHORA QUÉ -->
+  <div class="linked-section iaq">
+    <div class="section-head">
+      <div class="section-icon">◇</div>
+      <h3>Oportunidades para IAhora Qué (CEO Aumentado)</h3>
+    </div>
+    <p class="section-sub">
+      Conexión con el proyecto que estamos montando con <strong>Gael (Utópica)</strong> y <strong>Rick Colusso (Kleer)</strong>:
+      acompañar a fundadores/CEOs en la adopción práctica de IA en 5 niveles de madurez (chat → asistente → agente → sistemas → transformación).
+      Foco diferencial: <em>autonomía</em> — que el CEO delegue tareas reales con IA sin agregar carga cognitiva.
+    </p>
+
+    <div class="opp-grid">
+      <div class="opp-card">
+        <div class="opp-rank">Oportunidad #1 · Alta</div>
+        <h4>José + Tono como caso-cliente del Ciclo IAhora Qué</h4>
+        <p>Tienen exactamente los dolores que IAhora Qué resuelve: dependencia del founder en decisiones, know-how concentrado, ausencia de tablero de delegación. La métrica del Ciclo #1 ("cero decisiones pendientes &gt;48hs") es <strong>el caso de uso perfecto</strong> para un agente tipo Pepe Grillo aplicado a su sincronía directiva.</p>
+        <div class="opp-link"><strong>Próximo paso:</strong> proponer a Tono un piloto de "delegación asistida con IA" como anexo al Ciclo #2.</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-rank">Oportunidad #2 · Alta</div>
+        <h4>Congreso CREA Litoral como vidriera</h4>
+        <p>Bernardo mencionó "~300 empresarios, 100 potencialmente interesados" en adopción de IA. Si llevamos el <strong>copiloto de congreso con QR</strong> (diagnóstico de arquetipos + 3 sombreros) construido por el equipo IAhora Qué, capturamos leads cualificados y validamos producto en una audiencia caliente.</p>
+        <div class="opp-link"><strong>Próximo paso:</strong> alinear con Fede/Santi/Laura el QR-copiloto y el funnel post-evento.</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-rank">Oportunidad #3 · Media</div>
+        <h4>Testimonio en audio + caso de estudio</h4>
+        <p>La meta del primer mes de IAhora Qué es que los beta-testers (Bada y Fede) "liberen 1-2 horas y generen un testimonio en audio". Si Tono — que ya pasó por un ciclo de coaching exitoso — usa una herramienta IAhora Qué, su testimonio tiene <strong>credibilidad CREA</strong> en la red ganadera.</p>
+        <div class="opp-link"><strong>Próximo paso:</strong> co-diseñar con Gael un mini-experimento de 30 días para Tono.</div>
+      </div>
+    </div>
+
+    <div class="connect-strip" style="background: linear-gradient(90deg, #ece4f7 0%, #f3e7e2 100%);">
+      💬 <strong>Para discutir con Gael y Rick:</strong> ¿José+Tono entran al funnel pro-bono (junto a Bada y Fede), o al funnel de primeros 5 clientes a precio reducido? ¿El Congreso CREA Litoral lo tratamos como evento de captación o como showcase de producto? Definir antes de la próxima OST.
+    </div>
+  </div>
+
+  <!-- CONGRESO CREA LITORAL -->
+  <div class="linked-section crea">
+    <div class="section-head">
+      <div class="section-icon">◆</div>
+      <h3>Arquetipos · Congreso CREA Litoral 2026</h3>
+    </div>
+    <p class="section-sub">
+      Trabajo en curso con el grupo de conducción del Congreso LIS: <strong>Bernardo Piazzardi (Austral)</strong>, <strong>Federico Vouilloud</strong>, <strong>Santiago Kenny</strong> y <strong>Laura Varese</strong> — reunión del 4/5/26.
+      Bernardo prepara la charla de Estrategia (los 11 pasos del "Camino"); Romy hace Liderazgo; Daniel Cerezo, Cultura.
+      <strong>Próximo paso explícito de la reunión:</strong> "Federico y Jorge — refinar arquetipos de evolución empresarial".
+    </p>
+
+    <div style="margin-top: 14px;">
+      <span class="badge hecho">HECHO</span>
+      <span style="color: var(--muted); font-size: 13px; margin-left: 8px;">
+        Audiencia confirmada en reunión 4/5/26:
+        <strong>dueños · familiares · equipo estratégico · asesores</strong> (heterogénea, baja carga teórica, "que pase por el cuerpo").
+      </span>
+    </div>
+
+    <h4 style="margin-top: 22px; margin-bottom: 4px; font-size: 14px; font-weight: 700;">
+      Arquetipos de evolución empresarial · <span class="badge hipotesis" style="font-weight:600;">PROPUESTA INICIAL</span>
+    </h4>
+    <p style="color: var(--muted); font-size: 13px; margin-bottom: 4px;">
+      Borrador ampliado para refinar con Fede. Cada arquetipo cruza dolor real (del análisis José+Tono y del material de Bernardo) con la charla del congreso que más le habla y la herramienta que más le sirve.
+    </p>
+
+    <div class="arch-grid-expanded">
+
+      <!-- A1 -->
+      <div class="arch-card-expanded">
+        <div class="arch-top">
+          <div>
+            <span class="arch-id">A1 · Cacique</span>
+            <h5>El dueño-cuello de botella</h5>
+            <p class="arch-tagline">"Si no estoy yo, no se mueve nada."</p>
+          </div>
+        </div>
+        <div class="arch-quote">"Soy el único que conoce todos los costos. Cuando viajo, mi celular no para."</div>
+        <div>
+          <div class="arch-section-label">Perfil</div>
+          <ul class="profile">
+            <li>Toma todas las decisiones (operativas, comerciales, financieras)</li>
+            <li>Conocimiento concentrado en su cabeza — sin manuales ni procesos escritos</li>
+            <li>Gestiona personas, no sistemas — el equipo lo consulta para todo</li>
+            <li>Romy lo llamó "cacique de pueblo" en la reunión del 4/5/26</li>
+          </ul>
+        </div>
+        <div class="arch-meta-grid">
+          <div class="arch-meta-cell">
+            <span class="label">Charla que le habla</span>
+            <span class="value">🟦 <strong>Liderazgo (Romy)</strong><br/>Tres dimensiones: yo / nosotros / contexto</span>
+          </div>
+          <div class="arch-meta-cell">
+            <span class="label">Herramienta clave</span>
+            <span class="value">Tablero de delegación + <strong>"Dueño de la Decisión"</strong> por tema</span>
+          </div>
+        </div>
+        <div class="arch-pain-large">
+          <strong>Dolor central:</strong> dependencia total y miedo a soltar. Cruza con <strong>Desafío Original #1 (de operación a estrategia)</strong> y <strong>Desafío #1 del Ciclo Tono+José</strong>. Estimado en el congreso: <strong>~40% de los asistentes</strong> (mayoría de dueños).
+        </div>
+      </div>
+
+      <!-- A2 -->
+      <div class="arch-card-expanded">
+        <div class="arch-top">
+          <div>
+            <span class="arch-id">A2 · Dúo Asimétrico</span>
+            <h5>Socios con tempos opuestos</h5>
+            <p class="arch-tagline">"Coincidimos en el qué, nos peleamos en el cómo."</p>
+          </div>
+        </div>
+        <div class="arch-quote">"Yo necesito el dato preciso para decidir. Mi socio decide con la mitad de la información."</div>
+        <div>
+          <div class="arch-section-label">Perfil</div>
+          <ul class="profile">
+            <li>Uno necesita precisión y datos; el otro va a la acción rápida</li>
+            <li>La sociedad funciona pero las decisiones se entrampan</li>
+            <li>Conversaciones críticas terminan en silencio o postergación</li>
+            <li>Caso vivo: <strong>José y Tono en Argenwagyu</strong></li>
+          </ul>
+        </div>
+        <div class="arch-meta-grid">
+          <div class="arch-meta-cell">
+            <span class="label">Charla que le habla</span>
+            <span class="value">🟦 <strong>Liderazgo (Romy)</strong> + 🟩 <strong>Cultura (Cerezo)</strong><br/>Vulnerabilidad y micro-cultura</span>
+          </div>
+          <div class="arch-meta-cell">
+            <span class="label">Herramienta clave</span>
+            <span class="value">Protocolo "estimado → preciso → decisión" + Sincronía 1-2-1 semanal</span>
+          </div>
+        </div>
+        <div class="arch-pain-large">
+          <strong>Dolor central:</strong> asimetría cognitiva sin protocolo. Cruza con <strong>Desafío Original #2 (destrezas relacionales)</strong>. <strong>Caso vivo del Ciclo #1</strong> — Tono puede ser uno de los 3 casos que Bernardo quiere mostrar después de la incomodidad inicial.
+        </div>
+      </div>
+
+      <!-- A3 -->
+      <div class="arch-card-expanded">
+        <div class="arch-top">
+          <div>
+            <span class="arch-id">A3 · Familia-Negocio</span>
+            <h5>De PyME familiar a familia empresaria</h5>
+            <p class="arch-tagline">"En la mesa del domingo se mezcla todo."</p>
+          </div>
+        </div>
+        <div class="arch-quote">"Mi viejo fundó esto. Mi hermana entra ahora. Y todavía no sabemos quién decide qué."</div>
+        <div>
+          <div class="arch-section-label">Perfil</div>
+          <ul class="profile">
+            <li>2da o 3ra generación entrando en gestión, con profesionalización en curso (MBA, ingeniería)</li>
+            <li>Cultura, estrategia y dinámica familiar se cruzan permanentemente</li>
+            <li>Convive con asesores externos y equipo estratégico</li>
+            <li>Material de Fede menciona explícitamente el <strong>caso Lucci/Citrusvil</strong> como ejemplo (5 mujeres en la tercera generación)</li>
+          </ul>
+        </div>
+        <div class="arch-meta-grid">
+          <div class="arch-meta-cell">
+            <span class="label">Charla que le habla</span>
+            <span class="value">🟩 <strong>Cultura (Daniel Cerezo)</strong><br/>De valores a comportamientos concretos</span>
+          </div>
+          <div class="arch-meta-cell">
+            <span class="label">Herramienta clave</span>
+            <span class="value">Gestión de cartera de activos + acuerdos generacionales</span>
+          </div>
+        </div>
+        <div class="arch-pain-large">
+          <strong>Dolor central:</strong> separar "yo / nosotros / contexto" (marco Romy) en una familia donde todo está entrelazado. Audiencia confirmada del congreso ("dueños, familiares"). Estimado: <strong>~20% de los asistentes</strong>.
+        </div>
+      </div>
+
+      <!-- A4 -->
+      <div class="arch-card-expanded">
+        <div class="arch-top">
+          <div>
+            <span class="arch-id">A4 · Productivista</span>
+            <h5>El que mira solo rinde y kilos</h5>
+            <p class="arch-tagline">"Si producimos más, ganamos más."</p>
+          </div>
+        </div>
+        <div class="arch-quote">"Toda la vida le pegamos al rinde. Ahora me dicen que el rinde no alcanza. No entiendo."</div>
+        <div>
+          <div class="arch-section-label">Perfil</div>
+          <ul class="profile">
+            <li>Mentalidad productivista heredada — optimizar lo conocido</li>
+            <li>Sigue trabajando contra un mundo que cambió: China ya no tracciona, fertilidad global cayendo, demanda de calorías 1.2% (no 1.8% histórico)</li>
+            <li>Foco en volumen, no en calidad ni trazabilidad</li>
+            <li>Es el público al que Bernardo apunta con la <strong>"incomodidad constructiva"</strong></li>
+          </ul>
+        </div>
+        <div class="arch-meta-grid">
+          <div class="arch-meta-cell">
+            <span class="label">Charla que le habla</span>
+            <span class="value">🟧 <strong>Estrategia (Bernardo)</strong><br/>Los 11 pasos del "Camino"</span>
+          </div>
+          <div class="arch-meta-cell">
+            <span class="label">Herramienta clave</span>
+            <span class="value">Regla <strong>70-20-10</strong> + 5 preguntas de "Play to Win"</span>
+          </div>
+        </div>
+        <div class="arch-pain-large">
+          <strong>Dolor central:</strong> cambio de mindset — del rinde a la opcionalidad. Libro propuesto por Bernardo: <em>¿Quién se llevó mi queso?</em>. Cruza directamente con la <strong>Lección #1 del material de Fede</strong> (Mito Malthusiano y colapso de la fertilidad). Estimado: <strong>~25% de los asistentes</strong>.
+        </div>
+      </div>
+
+      <!-- A5 -->
+      <div class="arch-card-expanded">
+        <div class="arch-top">
+          <div>
+            <span class="arch-id">A5 · Asesor-puente</span>
+            <h5>El que entra y sale del campo</h5>
+            <p class="arch-tagline">"Yo traduzco entre el dueño y el equipo."</p>
+          </div>
+        </div>
+        <div class="arch-quote">"Vengo, dejo el plan, me voy. A los tres meses está todo igual."</div>
+        <div>
+          <div class="arch-section-label">Perfil</div>
+          <ul class="profile">
+            <li>Acompaña a varias empresas (CREA, consultoría, técnico de extensión)</li>
+            <li>Traduce entre la mirada del dueño y la operación del equipo</li>
+            <li>Necesita herramientas que pueda <strong>dejar instaladas</strong>, no presencia permanente</li>
+            <li>Tono mismo es asesor CREA — encarna parcialmente este arquetipo</li>
+          </ul>
+        </div>
+        <div class="arch-meta-grid">
+          <div class="arch-meta-cell">
+            <span class="label">Charla que le habla</span>
+            <span class="value">🟧 <strong>Estrategia (Bernardo)</strong><br/>Planeamiento estratégico compartido en equipo</span>
+          </div>
+          <div class="arch-meta-cell">
+            <span class="label">Herramienta clave</span>
+            <span class="value">Voces con IA (detectar desalineaciones) + Copiloto QR del congreso</span>
+          </div>
+        </div>
+        <div class="arch-pain-large">
+          <strong>Dolor central:</strong> continuidad post-asesoría — materializar conversaciones en procesos. Conecta con <strong>Necesidad #2 del análisis Tono+José</strong> (gestionar el sistema, no las personas). Estimado: <strong>~10% de los asistentes</strong>, mayormente asesores CREA.
+        </div>
+      </div>
+
+      <!-- A6 -->
+      <div class="arch-card-expanded">
+        <div class="arch-top">
+          <div>
+            <span class="arch-id">A6 · Equipo-sin-criterio</span>
+            <h5>Personal de campo dependiente</h5>
+            <p class="arch-tagline">"Esperamos que llegue el dueño y diga."</p>
+          </div>
+        </div>
+        <div class="arch-quote">"Acá no se decide nada hasta que aparece Don Fulano. Y eso pasa cada 15 días."</div>
+        <div>
+          <div class="arch-section-label">Perfil</div>
+          <ul class="profile">
+            <li>Empleados sin autonomía operativa, esperan instrucciones</li>
+            <li>El dueño llega al campo y "destranca" decisiones acumuladas</li>
+            <li>Criterio vive en personas, no en procesos — no hay redundancia</li>
+            <li>Reflejado en el experimento de Tono: "espinas en la bota" que el equipo no se anima a sacarse solo</li>
+          </ul>
+        </div>
+        <div class="arch-meta-grid">
+          <div class="arch-meta-cell">
+            <span class="label">Charla que le habla</span>
+            <span class="value">🟩 <strong>Cultura (Cerezo)</strong><br/>Microcultura dentro de cultura desafiante</span>
+          </div>
+          <div class="arch-meta-cell">
+            <span class="label">Herramienta clave</span>
+            <span class="value">Ronda semanal de 15 min + Tablero de delegación + Matriz de capacidades</span>
+          </div>
+        </div>
+        <div class="arch-pain-large">
+          <strong>Dolor central:</strong> ausencia de tablero de delegación y de matriz de capacidades. Cruza con <strong>Desafío Original #3 (autonomía equipo cría)</strong> y <strong>Necesidades #11–13</strong> del análisis. <em>No suele ir al congreso</em> — pero los arquetipos A1–A5 hablan en su nombre.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="connect-strip">
+      🔗 <strong>Vínculo con José+Tono:</strong> Tono encarna <strong>A2 (Dúo Asimétrico)</strong> en combinación con <strong>A1 (Cacique en transición)</strong>. Su experiencia del Ciclo #1 — la metodología "Logros y Espinas", el cambio de gestionar personas a gestionar el sistema — son insumos vivos para los <em>"3 casos de gente que encontró soluciones dentro de la misma cadena"</em> que Bernardo quiere mostrar después de la incomodidad inicial. <strong>Propuesta:</strong> ofrecer a Tono ser caso en el congreso (con la fricción mínima de mostrar su propio aprendizaje).
+    </div>
+  </div>
+
+  <!-- ESTRATEGIA · MATERIAL DE FEDE -->
+  <div class="strategy-section">
+    <div class="strategy-eyebrow">Estrategia · Material compartido por Fede</div>
+    <h3>El "Elefante en el Ascensor": cinco lecciones de agilidad y caos para agronegocios</h3>
+    <p class="strategy-sub">
+      Síntesis del documento que Federico Vouilloud compartió el 28/4/26 como material de preparación para la charla de Estrategia del Congreso CREA Litoral. Basado en el caso Lucci (Citrusvil + Viluco) en Tucumán y el marco Kearney / Universidad de Purdue. Conecta directamente con los desafíos de Argenwagyu — productor de Wagyu para exportación en Santiago del Estero.
+    </p>
+
+    <div class="strategy-source">
+      📁 <strong>Carpeta:</strong> "Material capacitación Estratégia" (Drive)
+      &nbsp;·&nbsp;<strong>Autor:</strong> federico.vouilloud@gmail.com
+      &nbsp;·&nbsp;<strong>Creada:</strong> 28 abr 2026
+    </div>
+
+    <!-- Marco de los 3 pilares -->
+    <h4 class="lessons-title" style="color: #8a6b1a;">Marco Kearney/Purdue · Tres pilares para gestionar el caos</h4>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-num">Pilar 1</div>
+        <h4>Resiliencia</h4>
+        <p>Soportar el golpe. Sobrevivir a shocks regulatorios, climáticos o de demanda sin colapsar.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">Pilar 2</div>
+        <h4>Agilidad</h4>
+        <p>Moverse rápido cuando las reglas cambian. Re-asignar recursos sin que cada cambio sea un trauma.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">Pilar 3</div>
+        <h4>Opcionalidad</h4>
+        <p>Mantener las puertas abiertas. No comprometer todo el capital a un solo escenario futuro.</p>
+      </div>
+    </div>
+
+    <!-- Las 5 lecciones -->
+    <h4 class="lessons-title" style="color: #8a6b1a; margin-top: 10px;">Las cinco lecciones</h4>
+
+    <div class="lesson">
+      <div class="lesson-num">1</div>
+      <div>
+        <h5>El mito malthusiano y el colapso de la fertilidad</h5>
+        <p>La narrativa de una población mundial demandando comida infinita se rompió. Crecimiento poblacional cayó de 2.3% (años 60) a 0.8% hoy. Argentina perdió 40% de natalidad en una década. <strong>La demanda ya no crece en volumen — crece en calidad y trazabilidad.</strong></p>
+        <div class="lesson-quote">
+          "A la IA y la automatización no les importa la comida; los robots no comen. El negocio ya no es producir volumen, sino capturar calidad y trazabilidad."
+          <span class="author">Ivo Sarjanovic — La Inquietud</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-num">2</div>
+      <div>
+        <h5>La trampa de Viluco · cuando el caos rompe la opcionalidad</h5>
+        <p>Planta de USD 100M en Frías (Santiago del Estero) operando al 40%. Apuesta masiva sin opcionalidad: aranceles que pasan del 5% al 32%, costo logístico de USD 20/ton ("contra flete"), 75% dependencia del camión, precios intervenidos. <strong>Lección:</strong> nunca comprometer todo a una sola apuesta cuando las reglas las pone otro.</p>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-num">3</div>
+      <div>
+        <h5>Citrusvil y la eficiencia como cobertura de riesgo</h5>
+        <p>Líder mundial en derivados del limón. Su planta de efluentes genera biogás que cubre el <strong>20% de la energía térmica</strong> — actúa como hedge natural contra volatilidad energética. Alianza estratégica firmada en 1999. <strong>Lección:</strong> la eficiencia industrial es una forma de cobertura, no solo de margen.</p>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-num">4</div>
+      <div>
+        <h5>De "PyME familiar" a "familia empresaria"</h5>
+        <p>La tercera generación Lucci (cinco mujeres, dos ya en gestión con MBA e ingeniería) profesionaliza el sueño compartido del fundador. <strong>Lección:</strong> la transición generacional necesita una visión de "gestión de cartera de activos", no solo de continuidad emocional.</p>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-num">5</div>
+      <div>
+        <h5>AgTech: supervivencia, no lujo</h5>
+        <p>En el Norte Grande, la tecnología responde a falta de mano de obra calificada y costos de herbicidas de USD 110/ha por malezas resistentes. Citrusvil redujo dependencia de mano de obra <strong>50%</strong> en empaque. Plataformas como Bushel (granos) y AgVend (insumos) son los benchmarks. <strong>Lección:</strong> trazabilidad y transparencia son condición de entrada al mercado de exportación.</p>
+      </div>
+    </div>
+
+    <!-- VÍNCULO ARGENWAGYU -->
+    <div class="strategy-link">
+      <span class="link-tag">Vínculo directo con Argenwagyu</span>
+      <h4>El marco encaja casi sin ajustes con el caso José+Tono</h4>
+      <p>Argenwagyu produce Wagyu para exportación — <strong>literalmente "capturar calidad y trazabilidad" en un mundo que envejece y deja de demandar volumen</strong> (Lección #1). Su modelo de negocio ya está alineado con el cambio de paradigma que Bernardo va a plantear.</p>
+      <p>Sin embargo, los desafíos del Ciclo #1 muestran fricciones en los <strong>3 pilares</strong>: <em>Resiliencia</em> (el sistema depende de personas, no de procesos — frágil ante ausencia o salida), <em>Agilidad</em> (decisiones se entrampan por asimetría José/Tono), <em>Opcionalidad</em> (sin tablero de delegación, la operación no permite que los socios prueben rutas estratégicas alternativas).</p>
+      <p style="margin-top: 8px;"><strong>Insight:</strong> el Ciclo #2 puede leerse como un proyecto de <em>opcionalidad organizacional</em> — liberar capacidad estratégica de los socios para que puedan responder al "elefante en el ascensor" cuando aparezca.</p>
+    </div>
+
+    <!-- Pregunta final -->
+    <div class="final-q">
+      <span class="qtag">Pregunta final del material</span>
+      Su empresa, ¿está diseñada para un mundo que crece o para uno que envejece, automatiza y cambia las reglas cada seis meses?
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-section">
+    <h3>Lectura cruzada: avance vs propuesta original</h3>
+    <div class="footer-grid">
+      <div>
+        <p><strong>El Ciclo #1 cubrió 2 de 3 desafíos formales.</strong> El #1 (de operación a estrategia) y el #2 (de tensiones intuitivas a destrezas relacionales) tuvieron prácticas concretas. El #3 (autonomía del equipo de cría) quedó deliberadamente fuera del scope porque primero había que resolver la dinámica entre los socios — pre-condición para luego intervenir en el equipo.</p>
+        <p><strong>Entregables: 2 completados / 2 parciales / 3 pendientes.</strong> Los completados son los del Tema 1 (mapa de situación + plan de mejora co-creado). Los parciales son del Tema 2 (acuerdos + tablero de delegación nombrados pero no formalizados). Los pendientes son los 3 del Tema 3, que son el corazón del Ciclo #2.</p>
+        <p><strong>Tono habla más, José habla más denso.</strong> El material textual disponible viene mayoritariamente de Tono (chat directo + retro). José interviene menos pero con frases de mayor carga: vulnerabilidad, "no tener razón", "pasar el aprendizaje por el cuerpo". Cantidad ≠ peso.</p>
+      </div>
+      <div>
+        <p><strong>Foco recomendado Ciclo #2 (alineado a propuesta):</strong></p>
+        <ul class="clean">
+          <li>Cerrar Tema 2: formalizar acuerdos de trabajo + tablero de delegación como documentos vivos</li>
+          <li>Abrir Tema 3: empezar Matriz de habilidades del equipo de cría (≈3–5 personas clave)</li>
+          <li>Diseñar entrevistas de intereses con cada miembro del equipo</li>
+          <li>Validar empíricamente "cero decisiones pendientes &gt;48hs" (métrica del experimento de Tono)</li>
+          <li>Mantener principios A–D: co-construcción, concreción, iteración, mejora continua</li>
+          <li>Resolver pieza comercial antes de arrancar (Desafío #7 / Necesidad #10)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Metodología y límites.</strong> Ranking armado por triangulación de fuentes:
+      <strong>(0) Baseline:</strong> <em>Propuesta de Acompañamiento Argenwagyu · Febrero 2026</em> — define los 3 desafíos formales, los 3 temas con entregables y los 5 principios contra los cuales se mide el avance;
+      (1) Retrospectiva Granola del 5/5/26 con José, Tono y Jota;
+      (2) Grupo de WhatsApp "José + Tono + Jota" — 100 mensajes leídos, marzo–mayo;
+      (3) Chat directo con Antonio Marengo — feb–abril;
+      (4) Reuniones IAhora Qué con Gael y Rick (OST 27/4, IAhora Qué + Second Brain 1/5, IAhora Qué 11/5);
+      (5) Reunión Congreso LIS del 4/5/26 con Bernardo Piazzardi, Federico Vouilloud, Santiago Kenny y Laura Varese;
+      (6) Material de preparación compartido por Fede el 28/4/26 — carpeta "Material capacitación Estratégia" + doc <em>"El Elefante en el Ascensor"</em> (NotebookLM, caso Lucci/Citrusvil, marco Kearney/Purdue).
+      Etiquetas <strong>HECHO</strong>: citas textuales o acuerdos explícitos en documentos compartidos.
+      <strong>INFERENCIA</strong>: patrones leídos de la frecuencia o secuencia de mensajes — no son afirmaciones sobre lo que los protagonistas "piensan".
+      <strong>PROPUESTA INICIAL</strong>: borrador para refinar con las contrapartes correspondientes.
+      El estado de cada entregable refleja la evidencia disponible en las fuentes 1–3, no comunicación interna privada de Argenwagyu.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
